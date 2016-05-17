@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="shop-form-styles.html">
 <link rel="import" href="shop-input.html">
 <link rel="import" href="shop-select.html">
-<link rel="import" href="shop-checkbox.html">
+<link rel="import" href="shop-switch.html">
 
 <!-- resources loaded by lazy-resources.html -->
 <!--
@@ -29,7 +29,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="shop-checkout">
 
   <template>
-    <style include="shop-common-styles shop-button shop-form-styles shop-input shop-select shop-checkbox">
+    <style include="shop-common-styles shop-button shop-form-styles shop-input shop-select shop-switch">
 
       .main-frame {
         transition: opacity 0.5s;
@@ -54,13 +54,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       .billing-address-picker {
-        margin: 26px 0;
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
+        margin: 30px 0;
       }
 
       .billing-address-picker > label {
         margin-left: 10px;
+        vertical-align: middle;
       }
 
       .grid {
@@ -225,11 +224,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <h2 id="billAddressHeading">Billing Address</h2>
                 <div class="billing-address-picker">
-                  <shop-checkbox>
+                  <shop-switch>
                     <input type="checkbox" id="setBilling" name="setBilling"
                         checked$="[[hasBillingAddress]]" on-change="_toggleBillingAddress">
                     <shop-md-decorator></shop-md-decorator aria-hidden="true">
-                  </shop-checkbox>
+                  </shop-switch>
                   <label for="setBilling">Use different billing address</label>
                 </div>
                 <div hidden$="[[!hasBillingAddress]]">
