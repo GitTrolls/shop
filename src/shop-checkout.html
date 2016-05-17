@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="shop-form-styles.html">
 <link rel="import" href="shop-input.html">
 <link rel="import" href="shop-select.html">
-<link rel="import" href="shop-checkbox.html">
+<link rel="import" href="shop-switch.html">
 
 <!-- resources loaded by lazy-resources.html -->
 <!--
@@ -29,7 +29,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="shop-checkout">
 
   <template>
-    <style include="shop-common-styles shop-button shop-form-styles shop-input shop-select shop-checkbox">
+    <style include="shop-common-styles shop-button shop-form-styles shop-input shop-select shop-switch">
 
       .main-frame {
         transition: opacity 0.5s;
@@ -54,13 +54,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       .billing-address-picker {
-        margin: 28px 0;
-        height: 20px;
-        @apply(--layout-horizontal);
+        margin: 30px 0;
       }
 
       .billing-address-picker > label {
-        margin-left: 12px;
+        margin-left: 10px;
+        vertical-align: middle;
       }
 
       .grid {
@@ -139,7 +138,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <header class="subsection" visible$="[[_hasItems]]">
               <h1>Checkout</h1>
-              <span>([[_formatPrice(total)]])</span>
+              <span>Shop is a demo app - form data will not be sent</span>
             </header>
 
             <div class="subsection grid" visible$="[[_hasItems]]">
@@ -225,11 +224,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </div>
                 <h2 id="billAddressHeading">Billing Address</h2>
                 <div class="billing-address-picker">
-                  <shop-checkbox>
+                  <shop-switch>
                     <input type="checkbox" id="setBilling" name="setBilling"
                         checked$="[[hasBillingAddress]]" on-change="_toggleBillingAddress">
                     <shop-md-decorator></shop-md-decorator aria-hidden="true">
-                  </shop-checkbox>
+                  </shop-switch>
                   <label for="setBilling">Use different billing address</label>
                 </div>
                 <div hidden$="[[!hasBillingAddress]]">
@@ -385,7 +384,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                   <div>[[_formatPrice(total)]]</div>
                 </div>
                 <shop-button responsive id="submitBox">
-                  <input type="button" on-tap="_submit" value="Place Order">
+                  <input type="button" on-click="_submit" value="Place Order">
                 </shop-button>
               </section>
             </div>
@@ -394,7 +393,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Success message UI -->
         <header state="success">
-          <h1>Thanks for your purchase!</h1>
+          <h1>Thank you</h1>
           <p>[[response.successMessage]]</p>
           <shop-button responsive>
             <a href="/">Finish</a>
@@ -513,7 +512,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.$.checkoutForm.fire('iron-form-response', {
               response: {
                 success: 1,
-                successMessage: 'Your order has been received.'
+                successMessage: 'Demo checkout process complete.'
               }
             }, { bubbles: false });
           }, 1000);
