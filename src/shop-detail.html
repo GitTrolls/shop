@@ -28,8 +28,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       #content {
-        @apply --layout-horizontal;
-        @apply --layout-center-justified;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-justified);
       }
 
       shop-image {
@@ -38,7 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         width: 50%;
         max-width: 600px;
         --shop-image-img: {
-          @apply --layout-fit;
+          @apply(--layout-fit);
         };
       }
 
@@ -88,7 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       .pickers {
-        @apply --layout-vertical;
+        @apply(--layout-vertical);
         border-top: 1px solid #ccc;
       }
 
@@ -100,8 +100,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       @media (max-width: 767px) {
 
         #content {
-          @apply --layout-vertical;
-          @apply --layout-center;
+          @apply(--layout-vertical);
+          @apply(--layout-center);
         }
 
         shop-image {
@@ -187,7 +187,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <p id="desc"></p>
         </div>
         <shop-button responsive>
-          <button on-click="_addToCart" aria-label="Add this item to cart">Add to Cart</button>
+          <button on-tap="_addToCart" aria-label="Add this item to cart">Add to Cart</button>
         </shop-button>
       </div>
     </div>
@@ -217,10 +217,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         routeData: Object,
 
-        visible: {
-          type: Boolean,
-          value: false
-        },
+        visible: Boolean,
 
         offline: {
           type: Boolean,
@@ -248,8 +245,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.$.sizeSelect.value = 'M';
 
             this.fire('change-section', {
-              category: item ? item.category : '',
-              title: item ? item.title : ''
+              category: item.category,
+              title: item.title
             });
           });
         }

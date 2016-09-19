@@ -12,14 +12,10 @@
    "src/**/*",
    "data/**/*",
    "images/**/*",
-   "bower.json",
-   "app.yaml"
+   "bower.json"
   ],
   "includeDependencies": [
     "manifest.json",
-    "bower_components/webcomponentsjs/**/*",
-    "bower_components/custom-elements/**/*",
-    "bower_components/shadydom/**/*",
-    "bower_components/shadycss/**/*"
+    "bower_components/webcomponentsjs/webcomponents-lite.min.js"
   ]
 }
