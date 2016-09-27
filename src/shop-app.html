@@ -22,12 +22,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!-- Since 'home' is the default route, eagerly load it. -->
 <link rel="import" href="shop-home.html">
 
-<!--
-FIXME: Somehow adding the import here instead of lazy load fixes this issue.
-https://github.com/webcomponents/shadycss/issues/13
- -->
-<link rel="import" href="shop-icons.html">
-
 <dom-module id="shop-app">
 
   <template>
@@ -51,7 +45,7 @@ https://github.com/webcomponents/shadycss/issues/13
       }
 
       app-header {
-        @apply --layout-fixed-top;
+        @apply(--layout-fixed-top);
         z-index: 1;
         background-color: rgba(255, 255, 255, 0.95);
         --app-header-shadow: {
@@ -148,8 +142,8 @@ https://github.com/webcomponents/shadycss/issues/13
         font-size: 12px;
         font-weight: 500;
         pointer-events: none;
-        @apply --layout-vertical;
-        @apply --layout-center-center;
+        @apply(--layout-vertical);
+        @apply(--layout-center-center);
       }
 
       .drawer-list {
@@ -280,41 +274,33 @@ https://github.com/webcomponents/shadycss/issues/13
 
       <!-- Lazy-create the tabs for larger screen sizes. -->
       <div id="tabContainer" sticky$="[[_shouldShowTabs]]" hidden$="[[!_shouldShowTabs]]">
-        <dom-if if="[[_shouldRenderTabs]]">
-          <template>
-            <shop-tabs
-                selected="[[categoryName]]"
-                attr-for-selected="name">
-              <dom-repeat items="[[categories]]" as="category" initial-count="4">
-                <template>
-                <shop-tab name="[[category.name]]">
-                  <a href="/list/[[category.name]]">[[category.title]]</a>
-                </shop-tab>
-                </template>
-              </dom-repeat>
-            </shop-tabs>
-          </template>
-        </dom-if>
+        <template is="dom-if" if="[[_shouldRenderTabs]]">
+          <shop-tabs
+              selected="[[categoryName]]"
+              attr-for-selected="name">
+            <template is="dom-repeat" items="[[categories]]" as="category" initial-count="4">
+              <shop-tab name="[[category.name]]">
+                <a href="/list/[[category.name]]">[[category.title]]</a>
+              </shop-tab>
+            </template>
+          </shop-tabs>
+        </template>
       </div>
     </app-header>
 
     <!-- Lazy-create the drawer for small screen sizes. -->
-    <dom-if if="[[_shouldRenderDrawer]]">
-      <template>
+    <template is="dom-if" if="[[_shouldRenderDrawer]]">
       <!-- Two-way bind `drawerOpened` since app-drawer can update `opened` itself. -->
       <app-drawer opened="{{drawerOpened}}" swipe-open tabindex="0">
         <iron-selector role="navigation" class="drawer-list" selected="[[categoryName]]" attr-for-selected="name">
-          <dom-repeat items="[[categories]]" as="category" initial-count="4">
-            <template>
-              <a name="[[category.name]]" href="/list/[[category.name]]">[[category.title]]</a>
-            </template>
-          </dom-repeat>
+          <template is="dom-repeat" items="[[categories]]" as="category" initial-count="4">
+            <a name="[[category.name]]" href="/list/[[category.name]]">[[category.title]]</a>
+          </template>
         </iron-selector>
       </app-drawer>
-      </template>
-    </dom-if>
+    </template>
 
-    <iron-pages id="pages" role="main" selected="[[page]]" attr-for-selected="name" selected-attribute="visible">
+    <iron-pages role="main" selected="[[page]]" attr-for-selected="name" selected-attribute="visible">
       <!-- home view -->
       <shop-home name="home" categories="[[categories]]"></shop-home>
       <!-- list view of items in a category -->
@@ -391,7 +377,7 @@ https://github.com/webcomponents/shadycss/issues/13
         this.removeAttribute('unresolved');
       },
 
-      attached: function() {
+      ready: function() {
         // listen for online/offline
         Polymer.RenderStatus.afterNextRender(this, function() {
           this.listen(window, 'online', '_notifyNetworkStatus');
@@ -400,10 +386,12 @@ https://github.com/webcomponents/shadycss/issues/13
       },
 
       _routePageChanged: function(page) {
+        if (this.page === 'list') {
+          this._listScrollTop = window.pageYOffset;
+        }
+
         this.page = page || 'home';
-        // Scroll to the top of the page on every *route* change. Use `Polymer.AppLayout.scroll`
-        // with `behavior: 'silent'` to disable header scroll effects during the scroll.
-        Polymer.AppLayout.scroll({ top: 0, behavior: 'silent' });
+
         // Close the drawer - in case the *route* change came from a link in the drawer.
         this.drawerOpened = false;
       },
@@ -475,7 +463,19 @@ https://github.com/webcomponents/shadycss/issues/13
       // Response by a11y announcing the section and syncronizing the category.
       _onChangeSection: function(event) {
         var detail = event.detail;
+
+        // Scroll to the top of the page when navigating to a non-list page. For list view,
+        // scroll to the last saved position only if the category has not changed.
+        var scrollTop = 0;
+        if (this.page === 'list' && this.categoryName === detail.category) {
+          scrollTop = this._listScrollTop;
+        }
+        // Use `Polymer.AppLayout.scroll` with `behavior: 'silent'` to disable header scroll
+        // effects during the scroll.
+        Polymer.AppLayout.scroll({ top: scrollTop, behavior: 'silent' });
+
         this.categoryName = detail.category || '';
+
         // Announce the page's title
         if (detail.title) {
           document.title = detail.title + ' - SHOP';
