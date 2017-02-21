@@ -45,7 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       app-header {
-        @apply(--layout-fixed-top);
+        @apply --layout-fixed-top;
         z-index: 1;
         background-color: rgba(255, 255, 255, 0.95);
         --app-header-shadow: {
@@ -142,8 +142,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         font-size: 12px;
         font-weight: 500;
         pointer-events: none;
-        @apply(--layout-vertical);
-        @apply(--layout-center-center);
+        @apply --layout-vertical;
+        @apply --layout-center-center;
       }
 
       .drawer-list {
@@ -274,31 +274,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       <!-- Lazy-create the tabs for larger screen sizes. -->
       <div id="tabContainer" sticky$="[[_shouldShowTabs]]" hidden$="[[!_shouldShowTabs]]">
-        <template is="dom-if" if="[[_shouldRenderTabs]]">
-          <shop-tabs
-              selected="[[categoryName]]"
-              attr-for-selected="name">
-            <template is="dom-repeat" items="[[categories]]" as="category" initial-count="4">
-              <shop-tab name="[[category.name]]">
-                <a href="/list/[[category.name]]">[[category.title]]</a>
-              </shop-tab>
-            </template>
-          </shop-tabs>
-        </template>
+        <dom-if if="[[_shouldRenderTabs]]">
+          <template>
+            <shop-tabs
+                selected="[[categoryName]]"
+                attr-for-selected="name">
+              <dom-repeat items="[[categories]]" as="category" initial-count="4">
+                <template>
+                <shop-tab name="[[category.name]]">
+                  <a href="/list/[[category.name]]">[[category.title]]</a>
+                </shop-tab>
+                </template>
+              </dom-repeat>
+            </shop-tabs>
+          </template>
+        </dom-if>
       </div>
     </app-header>
 
     <!-- Lazy-create the drawer for small screen sizes. -->
-    <template is="dom-if" if="[[_shouldRenderDrawer]]">
+    <dom-if if="[[_shouldRenderDrawer]]">
+      <template>
       <!-- Two-way bind `drawerOpened` since app-drawer can update `opened` itself. -->
       <app-drawer opened="{{drawerOpened}}" swipe-open tabindex="0">
         <iron-selector role="navigation" class="drawer-list" selected="[[categoryName]]" attr-for-selected="name">
-          <template is="dom-repeat" items="[[categories]]" as="category" initial-count="4">
-            <a name="[[category.name]]" href="/list/[[category.name]]">[[category.title]]</a>
-          </template>
+          <dom-repeat items="[[categories]]" as="category" initial-count="4">
+            <template>
+              <a name="[[category.name]]" href="/list/[[category.name]]">[[category.title]]</a>
+            </template>
+          </dom-repeat>
         </iron-selector>
       </app-drawer>
-    </template>
+      </template>
+    </dom-if>
 
     <iron-pages role="main" selected="[[page]]" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
       <!-- home view -->
@@ -380,7 +388,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.removeAttribute('unresolved');
       },
 
-      ready: function() {
+      attached: function() {
         // listen for online/offline
         Polymer.RenderStatus.afterNextRender(this, function() {
           this.listen(window, 'online', '_notifyNetworkStatus');
@@ -389,7 +397,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _routePageChanged: function(page) {
-        if (this.page === 'list') {
+        // HACK(keanulee): Need to check if `page` actually changed due to polymer#3935.
+        if (this.page === 'list' && this.page !== page) {
           this._listScrollTop = window.pageYOffset;
         }
 
@@ -471,8 +480,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         // Scroll to the top of the page when navigating to a non-list page. For list view,
         // scroll to the last saved position only if the category has not changed.
         var scrollTop = 0;
-        if (this.page === 'list' && this.categoryName === detail.category) {
-          scrollTop = this._listScrollTop;
+        if (this.page === 'list') {
+          if (this.categoryName === detail.category) {
+            scrollTop = this._listScrollTop;
+          } else {
+            // Reset the list view scrollTop if the category changed.
+            this._listScrollTop = 0;
+          }
         }
         // Use `Polymer.AppLayout.scroll` with `behavior: 'silent'` to disable header scroll
         // effects during the scroll.
