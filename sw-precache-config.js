@@ -2,21 +2,12 @@ module.exports = {
   staticFileGlobs: [
     '/index.html',
     '/manifest.json',
-    '/bower_components/webcomponentsjs/webcomponents-loader.js',
+    '/bower_components/webcomponentsjs/webcomponents-lite.min.js',
     '/images/*'
   ],
   navigateFallback: '/index.html',
   navigateFallbackWhitelist: [/^(?!.*\.html$|\/data\/).*/],
   runtimeCaching: [
-    {
-      urlPattern: /\/bower_components\/webcomponentsjs\/.*.js/,
-      handler: 'fastest',
-      options: {
-        cache: {
-          name: 'webcomponentsjs-polyfills-cache'
-        }
-      }
-    },
     {
       urlPattern: /\/data\/images\/.*/,
       handler: 'cacheFirst',

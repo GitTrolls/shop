@@ -8,17 +8,17 @@
     "src/shop-checkout.html",
     "src/lazy-resources.html"
   ],
-  "sources": [
+  "sourceGlobs": [
    "src/**/*",
    "data/**/*",
    "images/**/*",
    "bower.json"
   ],
-  "extraDependencies": [
+  "includeDependencies": [
     "manifest.json",
-    "bower_components/webcomponentsjs/*"
+    "bower_components/webcomponentsjs/webcomponents-lite.min.js"
   ],
   "lint": {
-    "rules": ["polymer-2-hybrid"]
+    "rules": ["polymer-2-hybrid"] 
   }
 }

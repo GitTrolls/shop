@@ -8,7 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="shop-button.html">
@@ -28,8 +28,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       #content {
-        @apply --layout-horizontal;
-        @apply --layout-center-justified;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-justified);
       }
 
       shop-image {
@@ -38,7 +38,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         width: 50%;
         max-width: 600px;
         --shop-image-img: {
-          @apply --layout-fit;
+          @apply(--layout-fit);
         };
       }
 
@@ -88,7 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       .pickers {
-        @apply --layout-vertical;
+        @apply(--layout-vertical);
         border-top: 1px solid #ccc;
       }
 
@@ -100,8 +100,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       @media (max-width: 767px) {
 
         #content {
-          @apply --layout-vertical;
-          @apply --layout-center;
+          @apply(--layout-vertical);
+          @apply(--layout-center);
         }
 
         shop-image {
@@ -187,7 +187,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <p id="desc"></p>
         </div>
         <shop-button responsive>
-          <button on-click="_addToCart" aria-label="Add this item to cart">Add to Cart</button>
+          <button on-tap="_addToCart" aria-label="Add this item to cart">Add to Cart</button>
         </shop-button>
       </div>
     </div>
@@ -205,11 +205,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script>
 
-    class ShopDetail extends Polymer.Element {
+    Polymer({
 
-      static get is() { return 'shop-detail'; }
+      is: 'shop-detail',
 
-      static get properties() { return {
+      properties: {
 
         item: Object,
 
@@ -217,10 +217,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         routeData: Object,
 
-        visible: {
-          type: Boolean,
-          value: false
-        },
+        visible: Boolean,
 
         offline: {
           type: Boolean,
@@ -229,71 +226,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         failure: Boolean
 
-      }}
+      },
 
-      static get observers() { return [
+      observers: [
         '_itemChanged(item, visible)'
-      ]}
+      ],
 
-      _itemChanged(item, visible) {
+      _itemChanged: function(item, visible) {
         if (visible) {
-          this._itemChangeDebouncer = Polymer.Debouncer.debounce(this._itemChangeDebouncer,
-            Polymer.Async.microTask, () => {
-              // The item description contains escaped HTML (e.g. "&lt;br&gt;"), so we need to
-              // unescape it ("<br>") and set it as innerHTML.
-              let text = item ? item.description : '';
-              this.$.desc.innerHTML = this._unescapeText(text);
+          this.debounce('item-change', function() {
+            // The item description contains escaped HTML (e.g. "&lt;br&gt;"), so we need to
+            // unescape it ("<br>") and set it as innerHTML.
+            var text = item ? item.description : '';
+            this.$.desc.innerHTML = this._unescapeText(text);
 
-              // Reset the select menus.
-              this.$.quantitySelect.value = '1';
-              this.$.sizeSelect.value = 'M';
+            // Reset the select menus.
+            this.$.quantitySelect.value = '1';
+            this.$.sizeSelect.value = 'M';
 
-              this.dispatchEvent(new CustomEvent('change-section', {
-                bubbles: true, composed: true, detail: {
-                  category: item ? item.category : '',
-                  title: item ? item.title : ''
-                }}));
-            })
+            this.fire('change-section', {
+              category: item.category,
+              title: item.title
+            });
+          });
         }
-      }
+      },
 
-      _unescapeText(text) {
-        let elem = document.createElement('textarea');
+      _unescapeText: function(text) {
+        var elem = document.createElement('textarea');
         elem.innerHTML = text;
         return elem.textContent;
-      }
+      },
 
-      _formatPrice(price) {
+      _formatPrice: function(price) {
         return price ? '$' + price.toFixed(2) : '';
-      }
+      },
 
-      _addToCart() {
+      _addToCart: function() {
         // This event will be handled by shop-app.
-        this.dispatchEvent(new CustomEvent('add-cart-item', {
-          bubbles: true, composed: true, detail: {
-            item: this.item,
-            quantity: parseInt(this.$.quantitySelect.value, 10),
-            size: this.$.sizeSelect.value
-          }}));
-      }
+        this.fire('add-cart-item', {
+          item: this.item,
+          quantity: parseInt(this.$.quantitySelect.value, 10),
+          size: this.$.sizeSelect.value
+        });
+      },
 
-      _isDefined(item) {
+      _isDefined: function(item) {
         return item != null;
-      }
+      },
 
-      _tryReconnect() {
+      _tryReconnect: function() {
         this.$.categoryData.refresh();
-      }
+      },
 
-      _offlineChanged(offline) {
+      _offlineChanged: function(offline) {
         if (!offline) {
           this._tryReconnect();
         }
       }
 
-    }
-
-    customElements.define(ShopDetail.is, ShopDetail);
+    });
 
   </script>
 
