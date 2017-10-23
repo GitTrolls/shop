@@ -1,10 +1,21 @@
-import { Element } from '../node_modules/@polymer/polymer/polymer-element.js';
-import './shop-button.js';
-import './shop-image.js';
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
 
-class ShopHome extends Element {
-  static get template() {
-    return `
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shop-button.html">
+<link rel="import" href="shop-image.html">
+
+<dom-module id="shop-home">
+
+  <template>
+
     <style include="shop-button">
 
       .image-link {
@@ -89,42 +100,51 @@ class ShopHome extends Element {
     </style>
 
     <dom-repeat items="[[categories]]">
-      <template strip-whitespace="">
+      <template strip-whitespace>
         <div class="item">
-          <a class="image-link" href\$="/list/[[item.name]]">
+          <a class="image-link" href$="/list/[[item.name]]">
             <shop-image src="[[item.image]]" alt="[[item.title]]" placeholder-img="[[item.placeholder]]"></shop-image>
           </a>
           <h2>[[item.title]]</h2>
           <shop-button>
-            <a aria-label\$="[[item.title]] Shop Now" href\$="/list/[[item.name]]">Shop Now</a>
+            <a aria-label$="[[item.title]] Shop Now" href$="/list/[[item.name]]">Shop Now</a>
           </shop-button>
         </div>
       </template>
     </dom-repeat>
-`;
-  }
 
-  static get is() { return 'shop-home'; }
+  </template>
 
-  static get properties() { return {
+  <script>
 
-    categories: {
-      type: Array
-    },
+    class ShopHome extends Polymer.Element {
 
-    visible: {
-      type: Boolean,
-      observer: '_visibleChanged'
+      static get is() { return 'shop-home'; }
+
+      static get properties() { return {
+
+        categories: {
+          type: Array
+        },
+
+        visible: {
+          type: Boolean,
+          observer: '_visibleChanged'
+        }
+
+      }}
+
+      _visibleChanged(visible) {
+        if (visible) {
+          this.dispatchEvent(new CustomEvent('change-section', {
+            bubbles: true, composed: true, detail: {title: 'Home'}}));
+        }
+      }
+
     }
 
-  }}
+    customElements.define(ShopHome.is, ShopHome);
 
-  _visibleChanged(visible) {
-    if (visible) {
-      this.dispatchEvent(new CustomEvent('change-section', {
-        bubbles: true, composed: true, detail: {title: 'Home'}}));
-    }
-  }
-}
+  </script>
 
-customElements.define(ShopHome.is, ShopHome);
+</dom-module>

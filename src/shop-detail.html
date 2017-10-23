@@ -1,17 +1,26 @@
-import { Element } from '../node_modules/@polymer/polymer/polymer-element.js';
-import '../node_modules/@polymer/app-route/app-route.js';
-import '../node_modules/@polymer/iron-flex-layout/iron-flex-layout.js';
-import './shop-button.js';
-import './shop-category-data.js';
-import './shop-common-styles.js';
-import './shop-image.js';
-import './shop-select.js';
-import { Debouncer } from '../node_modules/@polymer/polymer/lib/utils/debounce.js';
-import { microTask } from '../node_modules/@polymer/polymer/lib/utils/async.js';
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
 
-class ShopDetail extends Element {
-  static get template() {
-    return `
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="shop-button.html">
+<link rel="import" href="shop-category-data.html">
+<link rel="import" href="shop-common-styles.html">
+<link rel="import" href="shop-image.html">
+<link rel="import" href="shop-select.html">
+
+<dom-module id="shop-detail">
+
+  <template>
+
     <style include="shop-common-styles shop-button shop-select">
 
       :host {
@@ -191,96 +200,103 @@ class ShopDetail extends Element {
         hidden$="[[!failure]]"
         offline="[[offline]]"
         on-try-reconnect="_tryReconnect"></shop-network-warning>
-    `;
 
-  }
+  </template>
 
-  static get is() { return 'shop-detail'; }
+  <script>
 
-  static get properties() { return {
+    class ShopDetail extends Polymer.Element {
 
-    item: Object,
+      static get is() { return 'shop-detail'; }
 
-    route: Object,
+      static get properties() { return {
 
-    routeData: Object,
+        item: Object,
 
-    visible: {
-      type: Boolean,
-      value: false
-    },
+        route: Object,
 
-    offline: {
-      type: Boolean,
-      observer: '_offlineChanged'
-    },
+        routeData: Object,
 
-    failure: Boolean
+        visible: {
+          type: Boolean,
+          value: false
+        },
 
-  }}
+        offline: {
+          type: Boolean,
+          observer: '_offlineChanged'
+        },
 
-  static get observers() { return [
-    '_itemChanged(item, visible)'
-  ]}
+        failure: Boolean
 
-  _itemChanged(item, visible) {
-    if (visible) {
-      this._itemChangeDebouncer = Debouncer.debounce(this._itemChangeDebouncer,
-        microTask, () => {
-          // The item description contains escaped HTML (e.g. "&lt;br&gt;"), so we need to
-          // unescape it ("<br>") and set it as innerHTML.
-          let text = item ? item.description : '';
-          this.$.desc.innerHTML = this._unescapeText(text);
+      }}
 
-          // Reset the select menus.
-          this.$.quantitySelect.value = '1';
-          this.$.sizeSelect.value = 'M';
+      static get observers() { return [
+        '_itemChanged(item, visible)'
+      ]}
 
-          this.dispatchEvent(new CustomEvent('change-section', {
-            bubbles: true, composed: true, detail: {
-              category: item ? item.category : '',
-              title: item ? item.title : '',
-              description: item ? item.description.substring(0, 100) : '',
-              image: item ? this.baseURI + item.image : ''
-            }}));
-        })
+      _itemChanged(item, visible) {
+        if (visible) {
+          this._itemChangeDebouncer = Polymer.Debouncer.debounce(this._itemChangeDebouncer,
+            Polymer.Async.microTask, () => {
+              // The item description contains escaped HTML (e.g. "&lt;br&gt;"), so we need to
+              // unescape it ("<br>") and set it as innerHTML.
+              let text = item ? item.description : '';
+              this.$.desc.innerHTML = this._unescapeText(text);
+
+              // Reset the select menus.
+              this.$.quantitySelect.value = '1';
+              this.$.sizeSelect.value = 'M';
+
+              this.dispatchEvent(new CustomEvent('change-section', {
+                bubbles: true, composed: true, detail: {
+                  category: item ? item.category : '',
+                  title: item ? item.title : '',
+                  description: item ? item.description.substring(0, 100) : '',
+                  image: item ? this.baseURI + item.image : ''
+                }}));
+            })
+        }
+      }
+
+      _unescapeText(text) {
+        let elem = document.createElement('textarea');
+        elem.innerHTML = text;
+        return elem.textContent;
+      }
+
+      _formatPrice(price) {
+        return price ? '$' + price.toFixed(2) : '';
+      }
+
+      _addToCart() {
+        // This event will be handled by shop-app.
+        this.dispatchEvent(new CustomEvent('add-cart-item', {
+          bubbles: true, composed: true, detail: {
+            item: this.item,
+            quantity: parseInt(this.$.quantitySelect.value, 10),
+            size: this.$.sizeSelect.value
+          }}));
+      }
+
+      _isDefined(item) {
+        return item != null;
+      }
+
+      _tryReconnect() {
+        this.$.categoryData.refresh();
+      }
+
+      _offlineChanged(offline) {
+        if (!offline) {
+          this._tryReconnect();
+        }
+      }
+
     }
-  }
 
-  _unescapeText(text) {
-    let elem = document.createElement('textarea');
-    elem.innerHTML = text;
-    return elem.textContent;
-  }
+    customElements.define(ShopDetail.is, ShopDetail);
 
-  _formatPrice(price) {
-    return price ? '$' + price.toFixed(2) : '';
-  }
+  </script>
 
-  _addToCart() {
-    // This event will be handled by shop-app.
-    this.dispatchEvent(new CustomEvent('add-cart-item', {
-      bubbles: true, composed: true, detail: {
-        item: this.item,
-        quantity: parseInt(this.$.quantitySelect.value, 10),
-        size: this.$.sizeSelect.value
-      }}));
-  }
-
-  _isDefined(item) {
-    return item != null;
-  }
-
-  _tryReconnect() {
-    this.$.categoryData.refresh();
-  }
-
-  _offlineChanged(offline) {
-    if (!offline) {
-      this._tryReconnect();
-    }
-  }
-
-}
-
-customElements.define(ShopDetail.is, ShopDetail);
+</dom-module>
