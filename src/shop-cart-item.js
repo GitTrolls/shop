@@ -1,23 +1,15 @@
-<!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
+import { Element } from '../node_modules/@polymer/polymer/polymer-element.js';
+import '../node_modules/@polymer/iron-flex-layout/iron-flex-layout.js';
+import '../node_modules/@polymer/paper-icon-button/paper-icon-button.js';
+import './shop-icons.js';
+import './shop-image.js';
+import './shop-select.js';
+const $_documentContainer = document.createElement('div');
+$_documentContainer.setAttribute('style', 'display: none;');
 
-<link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="shop-icons.html">
-<link rel="import" href="shop-image.html">
-<link rel="import" href="shop-select.html">
+$_documentContainer.innerHTML = `<dom-module id="shop-cart-item">
 
-<dom-module id="shop-cart-item">
-
-  <template strip-whitespace>
+  <template strip-whitespace="">
 
     <style include="shop-select">
 
@@ -166,19 +158,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </style>
 
-    <a href$="/detail/[[entry.item.category]]/[[entry.item.name]]" title$="[[entry.item.title]]">
+    <a href\$="/detail/[[entry.item.category]]/[[entry.item.name]]" title\$="[[entry.item.title]]">
       <shop-image src="[[entry.item.image]]" alt="[[entry.item.title]]"></shop-image>
     </a>
     <div class="flex">
       <div class="name">
-        <a href$="/detail/[[entry.item.category]]/[[entry.item.name]]">[[entry.item.title]]</a>
+        <a href\$="/detail/[[entry.item.category]]/[[entry.item.name]]">[[entry.item.title]]</a>
       </div>
       <div class="detail">
         <div class="quantity">
           <shop-select>
-            <label prefix>Qty:</label>
-            <select id="quantitySelect" aria-label="Change quantity" value="[[entry.quantity]]"
-                on-change="_quantityChange">
+            <label prefix="">Qty:</label>
+            <select id="quantitySelect" aria-label="Change quantity" value="[[entry.quantity]]" on-change="_quantityChange">
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -201,49 +192,48 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!--
           Use on-click instead of on-tap to prevent the next cart item to be focused
         -->
-        <paper-icon-button class="delete-button" icon="close" aria-label$="Delete item [[entry.item.title]]"
-            on-click="_removeItem"></paper-icon-button>
+        <paper-icon-button class="delete-button" icon="close" aria-label\$="Delete item [[entry.item.title]]" on-click="_removeItem"></paper-icon-button>
       </div>
     </div>
   </template>
 
-  <script>
+  
 
-    class ShopCartItem extends Polymer.Element {
+</dom-module>`;
 
-      static get is() { return 'shop-cart-item'; }
+document.head.appendChild($_documentContainer);
 
-      static get properties() { return {
+class ShopCartItem extends Element {
 
-        entry: Object
+  static get is() { return 'shop-cart-item'; }
 
-      }}
+  static get properties() { return {
 
-      _quantityChange() {
-        this._setCartItem(parseInt(this.$.quantitySelect.value, 10));
-      }
+    entry: Object
 
-      _setCartItem(quantity) {
-        this.dispatchEvent(new CustomEvent('set-cart-item', {
-          bubbles: true, composed: true, detail: {
-            item: this.entry.item,
-            quantity: quantity,
-            size: this.entry.size
-          }}));
-      }
+  }}
 
-      _formatPrice(price) {
-        return price ? '$' + price.toFixed(2) : '';
-      }
+  _quantityChange() {
+    this._setCartItem(parseInt(this.$.quantitySelect.value, 10));
+  }
 
-      _removeItem() {
-        this._setCartItem(0);
-      }
+  _setCartItem(quantity) {
+    this.dispatchEvent(new CustomEvent('set-cart-item', {
+      bubbles: true, composed: true, detail: {
+        item: this.entry.item,
+        quantity: quantity,
+        size: this.entry.size
+      }}));
+  }
 
-    }
+  _formatPrice(price) {
+    return price ? '$' + price.toFixed(2) : '';
+  }
 
-    customElements.define(ShopCartItem.is, ShopCartItem);
+  _removeItem() {
+    this._setCartItem(0);
+  }
 
-  </script>
+}
 
-</dom-module>
+customElements.define(ShopCartItem.is, ShopCartItem);
